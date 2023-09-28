@@ -20,7 +20,7 @@ OceanLotus persists using a LaunchAgent that runs an unsigned executable.
 
 You can write a SQL query that will join the `launchd` and `signature` tables on the `program` or `program_arguments` fields. One caveat - this method fails when the `program` or `program_arguments` field contains an executable with command-line arguments. In those cases, the join on the signature table will fail.
 
-A more sophisticated version where you use the launchd table to pull executable names and then python to parse out all the executables, then check the signing status using osquery.
+For a more sophisticated version of this, you can use python. Use the launchd table to pull executable names and then python to parse out all the executables, then check the signing status using osquery.
 
 ### Detect by looking for misleading bundle identifiers
 
