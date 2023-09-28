@@ -26,7 +26,7 @@ For a more sophisticated version of this, you can use python. Use the launchd ta
 
 In this emulation, Ocean Lotus' LaunchAgent had a bundle id of `com.apple.launchpad` but the executable run in the LaunchAgent was not signed by apple.
 
-We can use the launchd and signature tables in osquery to find these cases. False negatives here are a possibility if the `program_argument` field doesn't match a filename in the `signature` table. In those cases, the join on the signature table will fail.
+We can use the launchd and signature tables in osquery to find these cases. False negatives here are a possibility if the `program_argument` field doesn't match a filename in the `signature` table. In those cases, the join on the signature table will fail. As with the example above, you could script a solution using python to get around this issue.
 
 ```
 # Osquery SQL
