@@ -1,4 +1,4 @@
-# Ocean Lotus Detection
+# OceanLotus Detection
 
 Featured in "Dropping Lotus Bombs: ATT&CK in macOS Purple Team Operations" #OBTSv6
 
@@ -114,3 +114,73 @@ event.name:"process"
 process.args:("*find" && "-exec" && "*xattr" && "com.apple.quarantine")
 ```
 
+## Gathering system data with sed/awk and recon commands
+
+The OceanLotus emulation uses `sed`/`awk` with recon commands like `system_profiler` or `klist` to gather information and profile a system. Gathering information on hardware and installed software is a common tactic for threat actors. Each `sh -c` process results in a second process with the command passed to `sh -c`. We can target detection at either the `sh -c` commands or the recon commands themselves.
+```
+sh -c ifconfig en0 | awk &apos;/ether/{print $2}&apos;
+awk /ether/{print $2}
+
+sh -c klist 2&gt;/dev/null | awk &apos;/Principal/ {split($0,line,&quot;@&quot;); printf(&quot;%s&quot;, line[2])}&apos;
+awk /Principal/ {split($0,line,&quot;@&quot;); printf(&quot;%s&quot;, line[2])}
+
+sh -c system_profiler SPHardwareDataType 2&gt;/dev/null | awk &apos;/Memory/ {split($0,line, &quot;: &quot;); printf(&quot;%s&quot;, line[2]);}&apos;
+awk /Memory/ {split($0,line, &quot;: &quot;); printf(&quot;%s&quot;, line[2]);}
+
+sh -c system_profiler SPHardwareDataType 2&gt;/dev/null | awk &apos;/Processor / {split($0,line,&quot;: &quot;); printf(&quot;%s&quot;,line[2]);}&apos;
+awk /Processor / {split($0,line,&quot;: &quot;); printf(&quot;%s&quot;,line[2]);}
+
+sh -c system_profiler SPHardwareDataType 2&gt;/dev/null | awk &apos;/Processor Name/ {split($0,line, &quot;: &quot;); printf(&quot;%s&quot;, line[2]);}&apos;
+awk /Processor Name/ {split($0,line, &quot;: &quot;); printf(&quot;%s&quot;, line[2]);}
+
+sh -c klist 2>/dev/null | awk '/Principal/ {split($0,line,"@"); printf("%s", line[2])}'
+awk /Principal/ {split($0,line,"@"); printf("%s", line[2])}
+
+sh -c system_profiler SPHardwareDataType 2>/dev/null | awk '/Memory/ {split($0,line, ": "); printf("%s", line[2]);}'
+awk /Memory/ {split($0,line, &quot;: &quot;); printf(&quot;%s&quot;, line[2]);}
+
+sh -c system_profiler SPHardwareDataType 2>/dev/null | awk '/Processor / {split($0,line,": "); printf("%s",line[2]);}'
+awk /Processor / {split($0,line,": "); printf("%s",line[2]);}
+
+sh -c system_profiler SPHardwareDataType 2>/dev/null | awk '/Processor Name/ {split($0,line, ": "); printf("%s", line[2]);}'
+awk /Processor Name/ {split($0,line, ": "); printf("%s", line[2]);}
+
+/bin/sh -c /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk &apos;/ SSID/ {print substr($0, index($0, $2))}&apos;
+awk / SSID/ {print substr($0, index($0, $2))}
+```
+
+### Detect using process execution data
+
+All of these commands will appear in process execution data. However, legitimate software packages also use these commands when installing. [Normalized Baseline Detection](https://github.com/megancarney/nbd/) is one strategy for filtering out the noise. Other strategies include counting recon commands run per responsible process and only alerting if a responsible process has run multiple recon commmands.
+
+## Encoding/decoding with openssl and base64
+
+OceanLotus, like other malware, uses `openssl` and `base64` to decode commands sent to the machine and encode data sent from the host.
+```
+/bin/sh - /usr/bin/base64
+/bin/sh - /usr/bin/base64 -d
+openssl enc -base64
+sh -c echo <UUID><MAC_ADDRESS> | md5 | xxd -r -p | base64
+openssl enc -base64 -d
+```
+
+### Detect using process execution data
+
+All of these commands will appear in process execution data. Unfortunately, legitimate developer tools also use these commands to encode/decode data. [Normalized Baseline Detection](https://github.com/megancarney/nbd/) is one strategy for filtering out the noise.
+
+## Accessing shell history
+
+After compromising the host, OceanLotus accesses shell history file.
+```
+cat /Users/loonicorn/.bash_history
+cat /Users/loonicorn/.zsh_history
+```
+
+### Detect using process execution data
+
+These commands will appear in process execution data. You may have a few applications to filter out, but the background noise is more manageable.
+```
+event.name:"process"
+process.name:"cat"
+process.args:("*history") 
+```
