@@ -170,7 +170,7 @@ All of these commands will appear in process execution data. Unfortunately, legi
 
 ## Accessing shell history
 
-After compromising the host, OceanLotus accesses shell history file.
+After compromising the host, OceanLotus accesses shell history files.
 ```
 cat /Users/loonicorn/.bash_history
 cat /Users/loonicorn/.zsh_history
