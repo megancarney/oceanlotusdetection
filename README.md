@@ -88,7 +88,7 @@ touch -t 1910071234 ~/Library/WebKit/com.apple.launchpad
 
 ### Detect using process execution data
 
-Any tool that collects process telemetry will catch `touch -e` commands. Unfortunately, some legitimate compiler and developer tools use this command as well. [Normalized Baseline Detection](https://github.com/megancarney/nbd/) is one strategy for filtering out the noise.
+Any tool that collects process telemetry will catch `touch -t` commands. Unfortunately, some legitimate compiler and developer tools use this command as well. [Normalized Baseline Detection](https://github.com/megancarney/nbd/) is one strategy for filtering out the noise.
 
 ## Removing the quarantine attribute with xattr
 
