@@ -1,6 +1,6 @@
 # OceanLotus Detection
 
-Featured in "Dropping Lotus Bombs: ATT&CK in macOS Purple Team Operations" #OBTSv6. Slides will be posted here and at [my website](https://www.megancarney.com/speaking.html) after the talk.
+Featured in "Dropping Lotus Bombs: ATT&CK in macOS Purple Team Operations" #OBTSv6. Slides posted in the [NBD repo](https://github.com/megancarney/nbd) and at [my website](https://www.megancarney.com/speaking.html) after the talk.
 
 ## Executables in user directories loading modules into memory
 
